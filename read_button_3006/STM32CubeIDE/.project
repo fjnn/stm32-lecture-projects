@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>my_first_project</name>
+	<name>read_button_0630</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -31,9 +31,9 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>my_first_project.ioc</name>
+			<name>read_button_0630.ioc</name>
 			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/my_first_project.ioc</locationURI>
+			<locationURI>PARENT-1-PROJECT_LOC/read_button_0630.ioc</locationURI>
 		</link>
 		<link>
 			<name>Application/User/main.c</name>
