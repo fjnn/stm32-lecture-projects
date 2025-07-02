@@ -1,0 +1,14 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "PlatformIO",
+			"task": "Clean (nucleo_f767zi)",
+			"problemMatcher": [
+				"$platformio"
+			],
+			"group": "clean",
+			"label": "PlatformIO: Clean (nucleo_f767zi)"
+		}
+	]
+}
