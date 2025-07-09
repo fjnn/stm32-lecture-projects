@@ -21,7 +21,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include<string.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -101,8 +101,10 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    uint8_t value = 5;
-    HAL_UART_Transmit(&huart3, &value, 1, HAL_MAX_DELAY); 
+    // uint8_t value = 5;
+    // HAL_UART_Transmit(&huart3, &value, 1, HAL_MAX_DELAY); 
+    const char *message = "5\n";
+    HAL_UART_Transmit(&huart3, (uint8_t *)message, strlen(message), HAL_MAX_DELAY);
     HAL_Delay(500);
 
   }
@@ -211,7 +213,7 @@ static void MX_GPIO_Init(void)
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOH_CLK_ENABLE();
-  __HAL_RCC_GPIOB_CLK_ENABLE();
+  __HAL_RCC_GPIOD_CLK_ENABLE();
 
   /* USER CODE BEGIN MX_GPIO_Init_2 */
 
