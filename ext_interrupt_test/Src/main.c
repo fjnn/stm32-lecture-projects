@@ -42,9 +42,6 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-// --- Global Variables for Debouncing ---
-volatile uint32_t lastDebounceTime = 0;
-const uint32_t debounceDelay = 10; // 10 milliseconds
 
 /* USER CODE END PV */
 
@@ -202,19 +199,8 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
-  if (GPIO_Pin == GPIO_PIN_13){
-    // Get the current tick time
-    uint32_t currentTime = HAL_GetTick();
-
-    // Check if enough time has passed since the last valid press
-    if ((currentTime - lastDebounceTime) > debounceDelay){
-      // If yes, this is a valid button press/release
-      HAL_GPIO_TogglePin(LD1_GPIO_Port, LD1_Pin);
-
-      // Update the last debounce time
-      lastDebounceTime = currentTime;
-    }
-    // If not enough time has passed, ignore this interrupt (it's bounce)
+  if(GPIO_Pin == GPIO_PIN_13){
+    HAL_GPIO_TogglePin(LD1_GPIO_Port, LD1_Pin);
   }
 }
 
