@@ -93,7 +93,13 @@ int main(void)
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
 
-  HAL_TIM_Base_Start(&htim3);
+  // We replace this
+  // It just starts the timer counter.
+  // HAL_TIM_Base_Start(&htim3); 
+
+  //This one starts the timer counter and enables the update interrupt (if configured) 
+  //or other interrupts (like the trigger interrupt) if they are globally enabled in the NVIC.
+  HAL_TIM_Base_Start_IT(&htim3);
 
   /* USER CODE END 2 */
 
@@ -206,6 +212,7 @@ static void MX_TIM3_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN TIM3_Init 2 */
+  __HAL_TIM_ENABLE_IT(&htim3, TIM_IT_TRIGGER);
 
   /* USER CODE END TIM3_Init 2 */
 
