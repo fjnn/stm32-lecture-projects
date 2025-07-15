@@ -22,6 +22,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 # include <stdbool.h>
+#include <stm32f7xx_hal_adc.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -58,9 +59,9 @@ static void MX_ADC1_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-volatile uint32_t pot_adc_value = 0;
-volatile uint32_t ldr_adc_value = 0;
-volatile uint32_t raw_adc_vals[2];
+volatile uint16_t pot_adc_value = 0;
+volatile uint16_t ldr_adc_value = 0;
+volatile uint16_t raw_adc_vals[2];
 volatile bool conv_completed = false;
 uint16_t count = 0;
 
@@ -98,7 +99,14 @@ int main(void)
   MX_DMA_Init();
   MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
-  HAL_ADC_Start_DMA(&hadc1, raw_adc_vals, 2);
+  HAL_ADC_Start_DMA(&hadc1, (uint32_t*)raw_adc_vals, 2);
+  HAL_StatusTypeDef status;
+  status = HAL_ADC_Start_DMA(&hadc1, (uint32_t*)raw_adc_vals, 2);
+  if (status != HAL_OK) {
+      // Breakpoint here, or toggle an LED, or go to Error_Handler
+      // If it enters here, the FIRST start failed.
+      Error_Handler(); // Or a specific error LED
+  }
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -111,12 +119,24 @@ int main(void)
 
     count++;
     // HAL_Delay(500); // Small delay 
+    // HAL_ADC_Start_DMA(&hadc1, (uint32_t*)raw_adc_vals, 2);
 
     if(conv_completed){
       ldr_adc_value = raw_adc_vals[0];
       pot_adc_value = raw_adc_vals[1];
       conv_completed = false;
+      HAL_ADC_Stop_DMA(&hadc1);
+      __HAL_ADC_CLEAR_FLAG(&hadc1, ADC_FLAG_EOC | ADC_FLAG_EOS);
+      status = HAL_ADC_Start_DMA(&hadc1, (uint32_t*)raw_adc_vals, 2);
+      HAL_Delay(100);
+      
+      if (status != HAL_OK) {
+      // Breakpoint here, or toggle an LED, or go to Error_Handler
+      // If it enters here, the FIRST start failed.
+      Error_Handler(); // Or a specific error LED
+  }
     }
+    
 
   }
   /* USER CODE END 3 */
@@ -206,7 +226,7 @@ static void MX_ADC1_Init(void)
   hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
   hadc1.Init.NbrOfConversion = 2;
-  hadc1.Init.DMAContinuousRequests = DISABLE;
+  hadc1.Init.DMAContinuousRequests = ENABLE;
   hadc1.Init.EOCSelection = ADC_EOC_SEQ_CONV;
   if (HAL_ADC_Init(&hadc1) != HAL_OK)
   {
@@ -217,7 +237,7 @@ static void MX_ADC1_Init(void)
   */
   sConfig.Channel = ADC_CHANNEL_3;
   sConfig.Rank = ADC_REGULAR_RANK_1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_144CYCLES;
+  sConfig.SamplingTime = ADC_SAMPLETIME_15CYCLES;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     Error_Handler();
@@ -275,7 +295,9 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
-    conv_completed = true;
+  ldr_adc_value = raw_adc_vals[0];
+  pot_adc_value = raw_adc_vals[1];
+  conv_completed = true;
 }
 
 /* USER CODE END 4 */
