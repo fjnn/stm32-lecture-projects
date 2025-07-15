@@ -111,8 +111,11 @@ int main(void)
     /* USER CODE BEGIN 3 */
 
     count++;
-    // HAL_Delay(500); // Small delay 
-    // HAL_ADC_Start_DMA(&hadc1, (uint32_t*)raw_adc_vals, 2);
+    if(conv_completed){
+      pot_adc_value = raw_adc_vals[0];
+      ldr_adc_value = raw_adc_vals[1];
+      conv_completed = false;
+    }
 
   }
   /* USER CODE END 3 */
