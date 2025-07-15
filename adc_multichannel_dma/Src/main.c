@@ -114,11 +114,12 @@ int main(void)
 
     count++;
     if(conv_completed){
+      // Do whatever calculations/actions you want to do with the ADC readings
       pot_adc_volt = (float)pot_adc_val * (3.3f / 4095.0f);
       ldr_adc_volt = (float)ldr_adc_val * (3.3f / 4095.0f);
       conv_completed = false;
     }
-
+    HAL_Delay(5);
   }
   /* USER CODE END 3 */
 }
@@ -279,7 +280,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
   ldr_adc_val = raw_adc_vals[0];
   pot_adc_val = raw_adc_vals[1];
   conv_completed = true;
-  // __NOP();
+  // __NOP(); // Only for debugging to check if the callback is triggered correctly. It is like "pass" keyword in Python.
 }
 
 /* USER CODE END 4 */
