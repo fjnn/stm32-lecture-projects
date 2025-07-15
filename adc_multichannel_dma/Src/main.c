@@ -271,10 +271,10 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
-  // ldr_adc_value = raw_adc_vals[0];
-  // pot_adc_value = raw_adc_vals[1];
-  // conv_completed = true;
-  __NOP();
+  ldr_adc_value = raw_adc_vals[0];
+  pot_adc_value = raw_adc_vals[1];
+  conv_completed = true;
+  // __NOP();
 }
 
 /* USER CODE END 4 */
