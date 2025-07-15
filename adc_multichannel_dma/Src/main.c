@@ -58,8 +58,10 @@ static void MX_ADC1_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-volatile uint16_t pot_adc_value = 0;
-volatile uint16_t ldr_adc_value = 0;
+float pot_adc_volt = 0;
+float ldr_adc_volt = 0;
+volatile uint16_t pot_adc_val = 0;
+volatile uint16_t ldr_adc_val = 0;
 volatile uint16_t raw_adc_vals[2];
 volatile bool conv_completed = false;
 uint16_t count = 0;
@@ -112,8 +114,8 @@ int main(void)
 
     count++;
     if(conv_completed){
-      pot_adc_value = raw_adc_vals[0];
-      ldr_adc_value = raw_adc_vals[1];
+      pot_adc_volt = (float)pot_adc_val * (3.3f / 4095.0f);
+      ldr_adc_volt = (float)ldr_adc_val * (3.3f / 4095.0f);
       conv_completed = false;
     }
 
@@ -274,8 +276,8 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
-  ldr_adc_value = raw_adc_vals[0];
-  pot_adc_value = raw_adc_vals[1];
+  ldr_adc_val = raw_adc_vals[0];
+  pot_adc_val = raw_adc_vals[1];
   conv_completed = true;
   // __NOP();
 }
