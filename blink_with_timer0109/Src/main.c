@@ -73,8 +73,7 @@ int main(void)
   // So your compiler optimizes this variable out
   // thinking that it is unused. Yeah, pretty stupid.
   volatile uint32_t timer_val;
-  HAL_GPIO_WritePin(LD1_GPIO_Port, LD1_Pin, GPIO_PIN_RESET);
-  GPIO_PinState pb0_val;
+  HAL_GPIO_WritePin(LD1_GPIO_Port, LD1_Pin, GPIO_PIN_SET);
 
   /* USER CODE END 1 */
 
@@ -114,21 +113,12 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-      if (__HAL_TIM_GET_COUNTER(&htim2) - timer_val >= 100000)
+      if (__HAL_TIM_GET_COUNTER(&htim2) - timer_val >= 50000000)
       {
         HAL_GPIO_TogglePin(LD1_GPIO_Port, LD1_Pin);
         timer_val = __HAL_TIM_GET_COUNTER(&htim2);
-        pb0_val =  HAL_GPIO_ReadPin(LD1_GPIO_Port, LD1_Pin);
       }
       HAL_Delay(10);
-      // pb0_val =  HAL_GPIO_ReadPin(LD1_GPIO_Port, LD1_Pin);
-      // HAL_Delay(1000);
-      // HAL_GPIO_WritePin(LD1_GPIO_Port, LD1_Pin, GPIO_PIN_RESET);
-      // pb0_val = HAL_GPIO_ReadPin(LD1_GPIO_Port, LD1_Pin);
-      // HAL_GPIO_WritePin(LD1_GPIO_Port, LD1_Pin, GPIO_PIN_SET);
-      // HAL_Delay(1000);
-
-
   }
   /* USER CODE END 3 */
 }
