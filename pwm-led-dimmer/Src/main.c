@@ -101,15 +101,19 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+    int delay_counter = 0;
     // Fade up (increase brightness)
     for(pwm_value = 0; pwm_value <= 999; pwm_value++) {
         __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, pwm_value);
+        for(delay_counter = 0; delay_counter < 10000; delay_counter++); // Wait a little
     }
 
     // Fade down (decrease brightness)
-    for(pwm_value = 999; pwm_value >= 0; pwm_value--) {
+    for(pwm_value = 999; pwm_value > 0; pwm_value--) {
         __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, pwm_value);
+        for(delay_counter = 0; delay_counter < 10000; delay_counter++); // Wait a little
     }
+    pwm_value = 0;
   }
   /* USER CODE END 3 */
 }
@@ -191,7 +195,7 @@ static void MX_TIM1_Init(void)
   htim1.Instance = TIM1;
   htim1.Init.Prescaler = 108-1;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim1.Init.Period = 65535;
+  htim1.Init.Period = 999;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim1.Init.RepetitionCounter = 0;
   htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
