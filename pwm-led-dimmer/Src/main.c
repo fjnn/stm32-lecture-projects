@@ -101,21 +101,18 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    int delay_counter = 0;
     // Fade up (increase brightness)
-    for(pwm_value = 0; pwm_value <= 999; pwm_value++) {
-        __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, pwm_value);
-        HAL_Delay(1); // or even better with a timer
-    }
-    HAL_GPIO_TogglePin(LD1_GPIO_Port, LD1_Pin);
+  for(pwm_value = 0; pwm_value <= 999; pwm_value++) {
+      __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, pwm_value);
+      HAL_Delay(1); // Small delay to make the fade visible
+  }
 
-    // Fade down (decrease brightness)
-    for(pwm_value = 999; pwm_value > 0; pwm_value--) {
-        __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, pwm_value);
-        HAL_Delay(1);
-    }
-    pwm_value = 0;
-    HAL_GPIO_TogglePin(LD1_GPIO_Port, LD1_Pin);
+  // Fade down (decrease brightness)
+  for(pwm_value = 999; pwm_value > 0; pwm_value--) {
+      __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, pwm_value);
+      HAL_Delay(1);
+  }
+
   }
   /* USER CODE END 3 */
 }
