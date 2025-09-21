@@ -105,15 +105,17 @@ int main(void)
     // Fade up (increase brightness)
     for(pwm_value = 0; pwm_value <= 999; pwm_value++) {
         __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, pwm_value);
-        for(delay_counter = 0; delay_counter < 10000; delay_counter++); // Wait a little
+        HAL_Delay(1); // or even better with a timer
     }
+    HAL_GPIO_TogglePin(LD1_GPIO_Port, LD1_Pin);
 
     // Fade down (decrease brightness)
     for(pwm_value = 999; pwm_value > 0; pwm_value--) {
         __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, pwm_value);
-        for(delay_counter = 0; delay_counter < 10000; delay_counter++); // Wait a little
+        HAL_Delay(1);
     }
     pwm_value = 0;
+    HAL_GPIO_TogglePin(LD1_GPIO_Port, LD1_Pin);
   }
   /* USER CODE END 3 */
 }
@@ -259,13 +261,25 @@ static void MX_TIM1_Init(void)
   */
 static void MX_GPIO_Init(void)
 {
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
   /* USER CODE BEGIN MX_GPIO_Init_1 */
 
   /* USER CODE END MX_GPIO_Init_1 */
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOH_CLK_ENABLE();
+  __HAL_RCC_GPIOB_CLK_ENABLE();
   __HAL_RCC_GPIOE_CLK_ENABLE();
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(LD1_GPIO_Port, LD1_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin : LD1_Pin */
+  GPIO_InitStruct.Pin = LD1_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(LD1_GPIO_Port, &GPIO_InitStruct);
 
   /* USER CODE BEGIN MX_GPIO_Init_2 */
 
