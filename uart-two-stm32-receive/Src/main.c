@@ -44,6 +44,8 @@
 UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN PV */
+#define RX_BUFFER_SIZE 13
+uint8_t RxData[RX_BUFFER_SIZE];
 
 /* USER CODE END PV */
 
@@ -91,7 +93,7 @@ int main(void)
   MX_GPIO_Init();
   MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
-
+  HAL_UART_Receive_IT(&huart3, RxData, RX_BUFFER_SIZE);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -227,6 +229,18 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+  {
+      // Check if the callback is for the correct UART peripheral
+      if (huart->Instance == USART3)
+      {
+          // 1. Toggle the green onboard LED (LD1 on PB0)
+          HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_0);
+
+          // 2. Restart the interrupt reception for the next message
+          HAL_UART_Receive_IT(&huart3, RxData, RX_BUFFER_SIZE);
+      }
+  }
 
 /* USER CODE END 4 */
 

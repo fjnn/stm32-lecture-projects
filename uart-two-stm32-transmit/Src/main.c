@@ -44,7 +44,8 @@
 UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN PV */
-
+char *TxData = "Hello from GIZEM\n"; // Change your name
+int16_t TxSize = 13; // Length of the string including the newline
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -101,6 +102,8 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+    HAL_UART_Transmit(&huart3, (uint8_t *)TxData, TxSize, HAL_MAX_DELAY);
+    HAL_Delay(500); // Wait 500ms before sending the next message
   }
   /* USER CODE END 3 */
 }
