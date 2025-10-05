@@ -235,7 +235,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
       if (huart->Instance == USART3)
       {
           // 1. Toggle the green onboard LED (LD1 on PB0)
-          HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_0);
+          HAL_GPIO_TogglePin(LD1_GPIO_Port, LD1_Pin);
 
           // 2. Restart the interrupt reception for the next message
           HAL_UART_Receive_IT(&huart3, RxData, RX_BUFFER_SIZE);
