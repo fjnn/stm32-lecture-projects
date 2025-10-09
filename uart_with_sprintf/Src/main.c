@@ -21,7 +21,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include <string.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -68,9 +68,7 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-  char uart_tx_buffer[32]; // Adjust size as needed for your integer range
-  int my_integer = 12345;
-  uint16_t len = sprintf(uart_tx_buffer, "Integer value: %d\r\n", my_integer);
+
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -92,8 +90,12 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USART3_UART_Init();
+  
   /* USER CODE BEGIN 2 */
-
+  // Initialize an empty buffer with 100 free spots to fill later
+  char transmit_buffer[100];
+  uint8_t timeout = 100;
+  int tall = 50;
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -103,9 +105,11 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    HAL_UART_Transmit(&huart3, (uint8_t*)uart_tx_buffer, len, HAL_MAX_DELAY);
-    HAL_Delay(1000); // Wait for 1 second before sending again
-    my_integer++; // Increment for demonstration
+    // Prepare/Update the string we want to transmit through UART
+    sprintf(transmit_buffer, "Sensorvalue : %d \n", tall);
+    HAL_UART_Transmit(&huart3, transmit_buffer, strlen(transmit_buffer), timeout);
+    HAL_Delay(1000);
+    tall++;
   }
   /* USER CODE END 3 */
 }
@@ -206,6 +210,7 @@ static void MX_USART3_UART_Init(void)
   */
 static void MX_GPIO_Init(void)
 {
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
   /* USER CODE BEGIN MX_GPIO_Init_1 */
 
   /* USER CODE END MX_GPIO_Init_1 */
@@ -213,6 +218,17 @@ static void MX_GPIO_Init(void)
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOH_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
+  __HAL_RCC_GPIOD_CLK_ENABLE();
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOB, LD1_Pin|LD3_Pin|LD2_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pins : LD1_Pin LD3_Pin LD2_Pin */
+  GPIO_InitStruct.Pin = LD1_Pin|LD3_Pin|LD2_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /* USER CODE BEGIN MX_GPIO_Init_2 */
 
