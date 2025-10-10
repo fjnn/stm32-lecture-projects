@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "cmsis_os.h"
 #include "lwip.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -42,13 +43,23 @@
 
 /* Private variables ---------------------------------------------------------*/
 
+osThreadId defaultTaskHandle;
 /* USER CODE BEGIN PV */
+ // NOTE: REPLACE THIS IP WITH THE IP ADDRESS OF YOUR PC RUNNING THE PYTHON SERVER
+ #define SERVER_IP       "192.168.1.10" 
+ #define SERVER_PORT     8080
+ #define POST_PATH       "/update"
+
+ // Example data to send (float sensor reading)
+ float sensor_reading = 25.5f;
 
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+void StartDefaultTask(void const * argument);
+
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -87,10 +98,39 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_LWIP_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
+
+  /* USER CODE BEGIN RTOS_MUTEX */
+  /* add mutexes, ... */
+  /* USER CODE END RTOS_MUTEX */
+
+  /* USER CODE BEGIN RTOS_SEMAPHORES */
+  /* add semaphores, ... */
+  /* USER CODE END RTOS_SEMAPHORES */
+
+  /* USER CODE BEGIN RTOS_TIMERS */
+  /* start timers, add new ones, ... */
+  /* USER CODE END RTOS_TIMERS */
+
+  /* USER CODE BEGIN RTOS_QUEUES */
+  /* add queues, ... */
+  /* USER CODE END RTOS_QUEUES */
+
+  /* Create the thread(s) */
+  /* definition and creation of defaultTask */
+  osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 128);
+  defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
+
+  /* USER CODE BEGIN RTOS_THREADS */
+  /* add threads, ... */
+  /* USER CODE END RTOS_THREADS */
+
+  /* Start scheduler */
+  osKernelStart();
+
+  /* We should never get here as control is now taken by the scheduler */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
@@ -191,8 +231,115 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+   /**
+   * @brief Sends an HTTP POST request with a raw data payload.
+   */
+ void send_http_post(float value)
+ {
+     struct netconn *conn = NULL;
+     ip_addr_t server_ip;
+     err_t err;
+
+     // Convert server IP string to lwIP ip_addr_t structure
+     IP4_ADDR(&server_ip, 
+             SERVER_IP[0] - '0', SERVER_IP[2] - '0', SERVER_IP[4] - '0', SERVER_IP[6] - '0'); // Simplified parsing, assumes simple fixed IP format for demo
+
+     // In a real application, use: ipaddr_aton(SERVER_IP, &server_ip);
+
+     // 1. Format the raw data payload (the body of the request)
+     char data_payload[32];
+     int data_len = snprintf(data_payload, sizeof(data_payload), "%.2f", value);
+
+     // 2. Construct the full HTTP POST request string
+     char request_buffer[256];
+     int request_len = snprintf(request_buffer, sizeof(request_buffer),
+                               "POST %s HTTP/1.1\r\n"
+                               "Host: %s:%d\r\n"
+                               "User-Agent: STM32F767-Client\r\n"
+                               "Content-Type: text/plain\r\n" // Matches the Python server expectation
+                               "Content-Length: %d\r\n"
+                               "Connection: close\r\n"
+                               "\r\n"
+                               "%s",
+                               POST_PATH, SERVER_IP, SERVER_PORT, data_len, data_payload);
+
+     // 3. Create a new connection handle (TCP socket)
+     conn = netconn_new(NETCONN_TCP);
+     if (conn != NULL)
+     {
+         // 4. Connect to the server
+         err = netconn_connect(conn, &server_ip, SERVER_PORT);
+
+         if (err == ERR_OK)
+         {
+             // 5. Send the entire request
+             netconn_write(conn, request_buffer, request_len, NETCONN_COPY);
+
+             // 6. Wait for response and read it (optional, but good practice)
+             struct netbuf *inbuf;
+             if (netconn_recv(conn, &inbuf) == ERR_OK)
+             {
+                 // Successfully received a response (e.g., "OK" from Python server)
+                 HAL_GPIO_WritePin(LD1_GPIO_Port, LD1_Pin, GPIO_PIN_SET); // Turn LED ON for success
+                 netbuf_delete(inbuf);
+             }
+         }
+         else
+         {
+             // Connection failed
+             HAL_GPIO_WritePin(LD1_GPIO_Port, LD1_Pin, GPIO_PIN_RESET); // Keep LED OFF for failure
+         }
+
+         // 7. Close and delete the connection handle
+         netconn_close(conn);
+         netconn_delete(conn);
+     }
+ }
+
 
 /* USER CODE END 4 */
+
+/* USER CODE BEGIN Header_StartDefaultTask */
+/**
+  * @brief  Function implementing the defaultTask thread.
+  * @param  argument: Not used
+  * @retval None
+  */
+/* USER CODE END Header_StartDefaultTask */
+void StartDefaultTask(void const * argument)
+{
+  /* init code for LWIP */
+  MX_LWIP_Init();
+  /* USER CODE BEGIN 5 */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END 5 */
+}
+
+/**
+  * @brief  Period elapsed callback in non blocking mode
+  * @note   This function is called  when TIM6 interrupt took place, inside
+  * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
+  * a global variable "uwTick" used as application time base.
+  * @param  htim : TIM handle
+  * @retval None
+  */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+  /* USER CODE BEGIN Callback 0 */
+
+  /* USER CODE END Callback 0 */
+  if (htim->Instance == TIM6)
+  {
+    HAL_IncTick();
+  }
+  /* USER CODE BEGIN Callback 1 */
+
+  /* USER CODE END Callback 1 */
+}
 
 /**
   * @brief  This function is executed in case of error occurrence.
