@@ -139,8 +139,16 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-  }
+     // Dummy sensor reading
+  sensor_reading += 0.1f;
+  if (sensor_reading > 35.0f) sensor_reading = 20.0f; 
+  send_http_post(sensor_reading);
+
+  // Wait 2 seconds before sending the next message. Use osDelay for LwIP/FreeRTOS.
+  osDelay(2000); 
+
   /* USER CODE END 3 */
+}
 }
 
 /**
