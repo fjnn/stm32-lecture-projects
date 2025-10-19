@@ -21,8 +21,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-# include "stdio.h"
-
+#include<stdio.h>
+#include<string.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -105,16 +105,25 @@ int main(void)
   MX_I2C1_Init();
   MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
+  char transmit_buffer[100];
+  uint8_t timeout = 100;
+  int tall = 50;
   
   // Initialize the MMA8451
-  MMA8451_Init();
+  // MMA8451_Init();
   // Optional: Check WHO_AM_I register to confirm communication is working
   uint8_t who_am_i;
-  HAL_I2C_Mem_Read(&hi2c1, MMA8451_ADDRESS, MMA8451_WHO_AM_I_REG, 1, &who_am_i, 1, HAL_MAX_DELAY);
-  if (who_am_i == 0x1A) {
-      // Communication established! Toggle LED to confirm.
-      HAL_GPIO_TogglePin(LD1_GPIO_Port, LD1_Pin); 
-  }
+  // HAL_I2C_Mem_Read(&hi2c1, MMA8451_ADDRESS, MMA8451_WHO_AM_I_REG, 1, &who_am_i, 1, HAL_MAX_DELAY);
+  // if (who_am_i == 0x1A) {
+  //     // Communication established! Toggle LED to confirm.
+  //     HAL_GPIO_TogglePin(LD1_GPIO_Port, LD1_Pin); 
+  // }
+
+  // For UART
+  // uint8_t RxData[6]; // Buffer to store X, Y, Z data (2 bytes per axis)
+  // uint16_t len = strlen(RxData);
+  // uint32_t timeout = 100; 
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -126,21 +135,28 @@ int main(void)
     /* USER CODE BEGIN 3 */
     // 1. Read 6 bytes of acceleration data (X MSB, X LSB, Y MSB, Y LSB, Z MSB, Z LSB)
     // Start reading from OUT_X_MSB (0x01)
-    HAL_I2C_Mem_Read(&hi2c1, MMA8451_ADDRESS, MMA8451_OUT_X_MSB, 1, RxData, 6, HAL_MAX_DELAY);
+    // HAL_I2C_Mem_Read(&hi2c1, MMA8451_ADDRESS, MMA8451_OUT_X_MSB, 1, RxData, 6, HAL_MAX_DELAY);
 
     // 2. Process the 14-bit data. The data is Left-Justified.
     // We need to shift the MSB left by 8 and combine with the LSB, then right-shift by 2 to align.
-    Accel_X = (int16_t)((RxData[0] << 8) | RxData[1]) >> 2;
-    Accel_Y = (int16_t)((RxData[2] << 8) | RxData[3]) >> 2;
-    Accel_Z = (int16_t)((RxData[4] << 8) | RxData[5]) >> 2;
+    // Accel_X = (int16_t)((RxData[0] << 8) | RxData[1]) >> 2;
+    // Accel_Y = (int16_t)((RxData[2] << 8) | RxData[3]) >> 2;
+    // Accel_Z = (int16_t)((RxData[4] << 8) | RxData[5]) >> 2;
 
     // 3. Convert raw values to human-readable string (using standard library function)
     // The raw 14-bit value corresponds to acceleration in g's.
     // Raw Value * (2g / 8192) will give acceleration in g's.
-    int len = sprintf(TxBuffer, "X: %d, Y: %d, Z: %d\r\n", Accel_X, Accel_Y, Accel_Z);
+    // int len = sprintf(TxBuffer, "X: %d, Y: %d, Z: %d\r\n", Accel_X, Accel_Y, Accel_Z);
 
     // 4. Transmit the data via USART3 to the serial monitor
-    HAL_UART_Transmit(&huart3, (uint8_t *)TxBuffer, len, HAL_MAX_DELAY);
+    // HAL_UART_Transmit(&huart3, (uint8_t *)TxBuffer, len, HAL_MAX_DELAY);
+    // HAL_UART_Transmit(&huart3, (uint8_t*)&Accel_X, 2, timeout);
+    // HAL_UART_Transmit(&huart3, (uint8_t*)&Accel_Y, 2, timeout);
+    // HAL_UART_Transmit(&huart3, (uint8_t*)&Accel_Z, 2, timeout);
+    sprintf(transmit_buffer, "Sensorvalue : %d \n", tall);
+    HAL_UART_Transmit(&huart3, transmit_buffer, strlen(transmit_buffer), timeout);
+    HAL_Delay(1000);
+    tall++;
 
     // 5. Wait for half a second before sending the next message
     HAL_Delay(500);
