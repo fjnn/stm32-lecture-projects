@@ -22,6 +22,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include<string.h>
+#include<stdio.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -92,6 +93,10 @@ int main(void)
   MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
 
+  char transmit_buffer[100];
+  uint8_t timeout = 100;
+  int tall = 50;
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -103,9 +108,13 @@ int main(void)
     /* USER CODE BEGIN 3 */
     // uint8_t value = 5;
     // HAL_UART_Transmit(&huart3, &value, 1, HAL_MAX_DELAY); 
-    const char *message = "5\n";
-    HAL_UART_Transmit(&huart3, (uint8_t *)message, strlen(message), HAL_MAX_DELAY);
-    HAL_Delay(500);
+    // const char *message = "5\n";
+    // HAL_UART_Transmit(&huart3, (uint8_t *)message, strlen(message), HAL_MAX_DELAY);
+    // HAL_Delay(500);
+    sprintf(transmit_buffer, "Sensorvalue : %d \n", tall);
+    HAL_UART_Transmit(&huart3, transmit_buffer, strlen(transmit_buffer), timeout);
+    HAL_Delay(1000);
+    tall++;
   }
   /* USER CODE END 3 */
 }
