@@ -135,13 +135,27 @@ int main(void)
     Accel_Y = (int16_t)((RxData[2] << 8) | RxData[3]) >> 2;
     Accel_Z = (int16_t)((RxData[4] << 8) | RxData[5]) >> 2;
 
+    // 2. Conversion to g-force values (in g's)
+    // Define constants for the conversion (2g range / 8192 counts)
+    #define ACCEL_RANGE_G 2.0f
+    #define ACCEL_MAX_RAW 8192.0f
+
+    // Declare these float variables outside the loop (in Private variables section)
+    float Accel_X_g, Accel_Y_g, Accel_Z_g;
+
+    Accel_X_g = ((float)Accel_X / ACCEL_MAX_RAW) * ACCEL_RANGE_G; // e.g., Raw/8192 * 2g
+    Accel_Y_g = ((float)Accel_Y / ACCEL_MAX_RAW) * ACCEL_RANGE_G;
+    Accel_Z_g = ((float)Accel_Z / ACCEL_MAX_RAW) * ACCEL_RANGE_G;
+
     // 3. Convert raw values to human-readable string (using standard library function)
     // The raw 14-bit value corresponds to acceleration in g's.
     // Raw Value * (2g / 8192) will give acceleration in g's.
     int len = sprintf(TxBuffer, "X: %d, Y: %d, Z: %d\r\n", Accel_X, Accel_Y, Accel_Z);
-
-    // 4. Transmit the data via USART3 to the serial monitor
     HAL_UART_Transmit(&huart3, (uint8_t *)TxBuffer, len, HAL_MAX_DELAY);
+
+    // 4. Convert to g values
+    int len2 = sprintf(TxBuffer, "X: %.2f, Y: %.2f, Z: %.2f\r\n", Accel_X_g, Accel_Y_g, Accel_Z_g);
+    HAL_UART_Transmit(&huart3, (uint8_t *)TxBuffer, len2, HAL_MAX_DELAY);
 
     // 5. Wait for half a second before sending the next message
     HAL_Delay(500);
@@ -171,8 +185,8 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
-  RCC_OscInitStruct.PLL.PLLM = 16;
-  RCC_OscInitStruct.PLL.PLLN = 192;
+  RCC_OscInitStruct.PLL.PLLM = 8;
+  RCC_OscInitStruct.PLL.PLLN = 108;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
   RCC_OscInitStruct.PLL.PLLQ = 2;
   RCC_OscInitStruct.PLL.PLLR = 2;
@@ -219,7 +233,7 @@ static void MX_I2C1_Init(void)
 
   /* USER CODE END I2C1_Init 1 */
   hi2c1.Instance = I2C1;
-  hi2c1.Init.Timing = 0x2010091A;
+  hi2c1.Init.Timing = 0x6000030D;
   hi2c1.Init.OwnAddress1 = 0;
   hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
   hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
